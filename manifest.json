@@ -1,0 +1,32 @@
+{
+  "name": "WUstus - lpis auto sign in",
+  "version": "1.0",
+  "description": "WUstus - Anmelden macht mein Bot für mich",
+  "permissions": ["activeTab", "declarativeContent", "storage", "tabs"],
+  "options_page": "options.html",
+  "background": {
+    "scripts": ["app.js"],
+    "persistent": false
+  },
+  "page_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/16.png",
+      "32": "images/32.png",
+      "48": "images/48.png",
+      "128": "images/128.png"
+    }
+  },
+  "icons": {
+    "16": "images/16.png",
+    "32": "images/32.png",
+    "48": "images/48.png",
+    "128": "images/128.png"
+  },
+  "content_scripts": [{
+    "matches": ["https://lpis.wu.ac.at/*"],
+    "js": ["pageAction.js"],
+    "run_at": "document_end"
+  }],
+  "manifest_version": 2
+}

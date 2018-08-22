@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      top: 0px;
+      left: 0px;
+      margin: 0px;
+    }
+
+    .banner {
+      width: 96%;
+      padding: 2%;
+      background-color: black;
+      color: white;
+      text-align: center;
+    }
+    .doationBox {
+      background-color: #3498db;
+      color: white;
+      padding: 2%;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="buttonDiv">
+  </div>
+</body>
+<script src="options.js"></script>
+<div class="banner">
+  <h1>WUstus</h1>
+  <h3>Anmelden macht mein Bot für mich</h3>
+</div>
+<center>
+    <div class="doationBox">
+        <br>
+        <p>Wenn du den Boy feierst, dann hilf ihm seine nächsten Biere zu finanzieren.
+          <br> Danke &lt;3 </p>
+        <br>
+        <form action="https://www.paypal.com/cgi-bin/webscr" target="_blank" rel="noopener noreferrer" method="post">
+  
+          <!-- Identify your business so that you can collect the payments. -->
+          <input type="hidden" name="business" value="nicozandomeneghi@outlook.de">
+  
+          <!-- Specify a Donate button. -->
+          <input type="hidden" name="cmd" value="_donations">
+  
+          <!-- Specify details about the contribution -->
+          <input type="hidden" name="item_name" value="WUstus lpis Bot">
+          <input type="hidden" name="item_number" value="Nico Zandomeneghi">
+          <input type="hidden" name="currency_code" value="EUR">
+  
+          <!-- Display the payment button. -->
+          <input type="image" name="submit" src="https://www.paypalobjects.com/de_DE/i/btn/btn_donate_LG.gif" alt="Donate">
+          <img alt="" width="1" height="1" src="https://www.paypalobjects.com/de_DE/i/scr/pixel.gif">
+  
+        </form>
+      </div>
+</center>
+
+</html>
