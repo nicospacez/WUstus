@@ -17,4 +17,4 @@ Example:
 * enable Developer mode
 * click Load unpacked
 
-[![](https://developer.chrome.com/static/images/get_started/load_extension.png)]
+![](https://developer.chrome.com/static/images/get_started/load_extension.png)
