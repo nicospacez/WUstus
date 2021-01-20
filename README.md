@@ -1,5 +1,5 @@
 # WUstus - Anmelden macht mein Bot für mich
-
+https://img.shields.io/badge/broken-broken-red
 [![donate](https://img.shields.io/badge/donate-spenden-green.svg "donate | spenden")](https://www.paypal.com/donate/?token=I1UnV20KGs-YMzkVjLSBictaXl7g_nKEwOL8wtPPzr7p5O9X3lEHTxc6opVH3MIqdEA6lW&country.x=AT&locale.x=)
 
 WUstus is a chrome extension for automatic sign in into lpis courses
