@@ -2,11 +2,8 @@
   "name": "WUstus - lpis auto sign in",
   "version": "2.0",
   "description": "WUstus - Anmelden macht mein Bot für mich",
-  "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "scripting"],
+  "permissions": ["storage", "scripting", "activeTab"],
   "options_page": "options.html",
-  "background": {
-    "service_worker": "app.js"
-  },
   "action": {
     "default_popup": "src/popup.html",
     "default_icon": {

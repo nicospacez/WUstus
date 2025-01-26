@@ -6,7 +6,7 @@
     <style>
       body {
         width: 320px;
-        height: 520px;
+        height: 500px;
         margin: 0;
         padding: 10px;
         font-family: sans-serif;
@@ -16,39 +16,32 @@
         font-size: 1.2em;
         margin-bottom: 0.5em;
       }
-      h2 {
-        font-size: 1.1em;
-        margin-top: 1em;
-        margin-bottom: 0.5em;
-      }
       button {
         margin-left: 6px;
         padding: 3px 6px;
-        cursor: pointer;
-      }
-      #lvaDropdown {
-        min-width: 120px;
-        padding: 3px;
       }
       #selectedList {
         list-style: disc inside;
         margin: 0;
         padding: 0;
       }
-      .row {
-        display: flex;
-        gap: 5px;
-        margin-bottom: 5px;
-      }
-      .row label {
-        font-weight: bold;
-      }
       .time-form {
         display: flex;
         flex-direction: column;
         gap: 5px;
+        margin-bottom: 10px;
       }
-      .time-form input {
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+      }
+      .row label {
+        min-width: 60px;
+        font-weight: bold;
+      }
+      .row input {
         padding: 3px;
       }
     </style>
@@ -57,14 +50,11 @@
     <h1>WUstus Popup</h1>
     <button id="resetStorageBtn">Reset all stored data</button>
 
-    <p>
-      Current Course:
-      <strong id="currentCourse">Loading...</strong>
-    </p>
+    <p>Current Course: <strong id="currentCourse">Loading...</strong></p>
 
     <hr />
 
-    <!-- PART A: Date/Time/Milliseconds for scheduled refresh -->
+    <!-- Date/Time with sub-second step -->
     <h2>Scheduled Refresh</h2>
     <div class="time-form">
       <div class="row">
@@ -73,18 +63,14 @@
       </div>
       <div class="row">
         <label for="courseTimeInput">Time</label>
-        <input id="courseTimeInput" type="time" />
-      </div>
-      <div class="row">
-        <label for="courseMsInput">ms</label>
-        <input id="courseMsInput" type="number" />
+        <!-- step="0.001" => let user type HH:MM:SS.sss -->
+        <input id="courseTimeInput" type="time" step="0.001" />
       </div>
       <button id="saveDateTimeBtn">Save Refresh Time</button>
     </div>
 
     <hr />
 
-    <!-- PART B: LVA selection logic -->
     <p>Select an LVA number and click "Add" to add it to your personal list for this course.</p>
     <div class="row">
       <select id="lvaDropdown"></select>

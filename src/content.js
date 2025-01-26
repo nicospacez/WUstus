@@ -1,92 +1,82 @@
 // content.js
 (function () {
-  /************************************************
-   * A) MERGE LVA DATA
-   ************************************************/
-  // 1) Extract the course name
+  let reloadTimeoutId = null;
+
+  // 1) Detect the current course by <span title="PI">
   const courseNameEl = document.querySelector('span[title="PI"]');
   const courseName = courseNameEl?.textContent.trim() || "Unknown Course";
 
-  // 2) Locate the table with class "b3k-data"
+  // 2) Merge LVA numbers
   const table = document.querySelector("table.b3k-data");
-  if (!table) {
-    return; // No table found => nothing to do
+  if (table) {
+    const scrapedLvaNumbers = Array.from(
+      table.querySelectorAll('td.ver_id a[href*="I="]')
+    ).map((a) => a.textContent.trim());
+
+    if (scrapedLvaNumbers.length > 0) {
+      chrome.storage.local.get(["courses"], (data) => {
+        const courses = data.courses || {};
+        const existing = courses[courseName] || [];
+        const merged = Array.from(new Set([...existing, ...scrapedLvaNumbers]));
+        courses[courseName] = merged;
+
+        chrome.storage.local.set({ courses }, () => {
+          console.log(
+            `Saved/merged ${merged.length} LVA numbers for "${courseName}":`,
+            merged
+          );
+        });
+      });
+    }
   }
 
-  // 2b) Gather LVA numbers from any <a> with 'I=' in href
-  const scrapedLvaNumbers = Array.from(
-    table.querySelectorAll('td.ver_id a[href*="I="]')
-  ).map((a) => a.textContent.trim());
-
-  if (!scrapedLvaNumbers.length) {
-    // No LVA numbers found => still schedule the refresh?
-    scheduleTimedRefresh(courseName);
-    return;
-  }
-
-  // 3) Merge newly scraped LVA numbers into courses[courseName]
-  chrome.storage.local.get(["courses"], (data) => {
-    const courses = data.courses || {};
-    const existing = courses[courseName] || [];
-
-    // Merge unique
-    const merged = Array.from(new Set([...existing, ...scrapedLvaNumbers]));
-    courses[courseName] = merged;
-
-    // 4) Save results
-    chrome.storage.local.set({ courses }, () => {
-      console.log(
-        `Saved/merged ${merged.length} total LVA numbers for course "${courseName}":`,
-        merged
-      );
-    });
-  });
-
-  /************************************************
-   * B) VISUALIZE SELECTED LVA POSITIONS
-   ************************************************/
+  // 3) Visualize selected LVAs
   visualizePositions();
 
+  // 4) Listen for changes => re-visualize or re-schedule
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "local") {
       if (changes.selectedList || changes.courses) {
         visualizePositions();
       }
-      // Also re-check if user changed the scheduled time
       if (changes.courseTimes) {
-        scheduleTimedRefresh(courseName);
+        scheduleRefresh(courseName);
       }
     }
   });
 
+  // 5) Schedule the refresh once on load
+  scheduleRefresh(courseName);
+
   function visualizePositions() {
     chrome.storage.local.get(["selectedList"], (data) => {
       const allSelected = data.selectedList || {};
-      const selectedForCourse = allSelected[courseName] || [];
-      annotateTable(selectedForCourse);
+      const selected = allSelected[courseName] || [];
+      annotateTable(selected);
     });
   }
 
-  function annotateTable(selectedListForThisCourse) {
+  function annotateTable(selectedList) {
+    if (!table) return;
     const links = table.querySelectorAll('td.ver_id a[href*="I="]');
     links.forEach((link) => {
-      const lvaNumber = link.textContent.trim();
-      const posIndex = selectedListForThisCourse.indexOf(lvaNumber);
-
       removeOldPositionLabel(link);
 
+      const lvaNumber = link.textContent.trim();
+      const posIndex = selectedList.indexOf(lvaNumber);
       if (posIndex >= 0) {
         const label = document.createElement("span");
         label.className = "wustus-position-label";
         label.textContent = `#${posIndex + 1}`;
-        label.style.padding = "2px 6px";
-        label.style.marginLeft = "4px";
-        label.style.backgroundColor = "#ffd700";
-        label.style.color = "#000";
-        label.style.borderRadius = "4px";
-        label.style.fontSize = "0.8em";
-        label.style.fontWeight = "bold";
-
+        Object.assign(label.style, {
+          padding: "2px 6px",
+          marginLeft: "4px",
+          backgroundColor: "#ffd700",
+          color: "#000",
+          borderRadius: "4px",
+          fontSize: "0.8em",
+          fontWeight: "bold",
+        });
         link.insertAdjacentElement("afterend", label);
       }
     });
@@ -103,19 +93,12 @@
     }
   }
 
-  /************************************************
-   * C) PRECISE TIMED RELOAD
-   ************************************************/
-  // We'll store a reference to any existing timeout so we can clear/re-schedule
-  let reloadTimeoutId = null;
-
-  // On load, call once
-  scheduleTimedRefresh(courseName);
-
-  // scheduleTimedRefresh: if there's a user-defined date/time/ms for this course,
-  // set a one-time setTimeout() that reloads at that moment.
-  function scheduleTimedRefresh(courseName) {
-    // Clear any old timer
+  /**
+   * scheduleRefresh: load date/time from courseTimes[courseName],
+   * parse it with milliseconds, set setTimeout() => reload
+   */
+  function scheduleRefresh(courseName) {
+    // clear any old timer
     if (reloadTimeoutId) {
       clearTimeout(reloadTimeoutId);
       reloadTimeoutId = null;
@@ -124,44 +107,59 @@
     chrome.storage.local.get(["courseTimes"], (data) => {
       const courseTimes = data.courseTimes || {};
       const targetObj = courseTimes[courseName];
-      if (!targetObj) {
-        // no scheduled time => do nothing
-        return;
-      }
-      const targetDate = parseTargetDateTime(targetObj);
-      if (!targetDate) {
-        return;
-      }
+      if (!targetObj) return;
+
+      // targetObj: { date: "2025-02-03", time: "14:05:27.123" } or "14:05:27.000"
+      const dateVal = targetObj.date; // "YYYY-MM-DD"
+      const timeVal = targetObj.time; // "HH:MM:SS.sss"
+      if (!dateVal || !timeVal) return;
+
+      const dateTime = parseDateTimeString(dateVal, timeVal);
+      if (!dateTime) return;
 
       const now = Date.now();
-      const diff = targetDate.getTime() - now;
+      const diff = dateTime.getTime() - now;
       if (diff <= 0) {
-        // The time is already past. We could refresh immediately or do nothing
+        // time has passed
         return;
       }
 
-      // Set a one-time timer
+      // set a precise timer
       reloadTimeoutId = setTimeout(() => {
-        console.log("Refreshing page at the scheduled time...");
+        console.log(`Reloading for ${courseName} at ${dateTime.toISOString()}`);
         window.location.reload();
       }, diff);
 
       console.log(
-        `Scheduled a reload for course "${courseName}" in ${diff} ms (at ${targetDate.toLocaleString()})`
+        `Scheduled reload in ${diff} ms for ${courseName} at ${dateTime.toISOString()}`
       );
     });
   }
 
-  // parseTargetDateTime: from { date: "YYYY-MM-DD", time: "HH:MM", ms: "123" } => a Date
-  function parseTargetDateTime({ date, time, ms }) {
-    if (!date || !time) return null;
-    const [yyyy, mm, dd] = date.split("-");
-    const [hh, min] = time.split(":");
-    if (!yyyy || !mm || !dd || !hh || !min) return null;
+  /**
+   * parseDateTimeString: combines "YYYY-MM-DD" + "HH:MM:SS.sss"
+   * into a JavaScript Date object
+   */
+  function parseDateTimeString(dateStr, timeStr) {
+    // If "14:05" => no seconds => add ":00"
+    // If "14:05:27" => no ms => can be "14:05:27"
+    // If "14:05:27.123"
+    // We'll do an approach: new Date("2025-02-03T14:05:27.123")
+    const isoString = `${dateStr}T${timeStr}`;
+    // Some browsers accept that directly if timeStr is "HH:MM:SS.sss"
+    // If user typed "14:05:27" we can add ".000"
+    if (/^\d{2}:\d{2}$/.test(timeStr)) {
+      // e.g. "14:05"
+      timeStr += ":00.000"; 
+    } else if (/^\d{2}:\d{2}:\d{2}$/.test(timeStr)) {
+      // e.g. "14:05:27"
+      timeStr += ".000";
+    }
 
-    const d = new Date(`${yyyy}-${mm}-${dd}T${hh}:${min}:00`);
-    if (ms) {
-      d.setMilliseconds(parseInt(ms, 10));
+    const finalString = `${dateStr}T${timeStr}`;
+    const d = new Date(finalString);
+    if (Number.isNaN(d.getTime())) {
+      return null;
     }
     return d;
   }
