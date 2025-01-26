@@ -5,7 +5,36 @@
 
   // 2) Merge newly scraped LVA numbers into courses[...] (as you already do)
   // ... your existing scraping code ...
+  // 2) Locate the LVA numbers in the table
+  const table = document.querySelector("table.b3k-data");
+  if (!table) {
+    return; // No table found
+  }
 
+  const scrapedLvaNumbers = Array.from(
+    table.querySelectorAll('td.ver_id a[href*="I="]')
+  ).map((a) => a.textContent.trim());
+
+  if (!scrapedLvaNumbers.length) {
+    return; // No LVA numbers found
+  }
+
+  // 3) Load existing courses from local storage, then MERGE with newly scraped data
+  chrome.storage.local.get(["courses"], (data) => {
+    const courses = data.courses || {};
+    const existing = courses[courseName] || []; // previously stored for this course
+
+    // Merge unique values: old + new
+    const merged = Array.from(new Set([...existing, ...scrapedLvaNumbers]));
+    courses[courseName] = merged;
+
+    // 4) Save the merged results back
+    chrome.storage.local.set({ courses }, () => {
+      console.log(
+        `Saved/merged ${merged.length} total LVA numbers for course: ${courses[courseName]}`
+      );
+    });
+  });
   // 3) After merging, call a function to visualize positions
   visualizePositions();
 
@@ -44,7 +73,7 @@
     if (!table) return;
 
     // 6b) For each link in td.ver_id a, see if it’s in selectedListForThisCourse
-    const links = table.querySelectorAll("td.ver_id a");
+    const links = table.querySelectorAll('td.ver_id a[href*="I="]');
     links.forEach((link) => {
       const lvaNumber = link.textContent.trim();
       // 6c) Find the index of this LVA in the user's selected array
@@ -56,18 +85,15 @@
       // If posIndex >= 0, the user has selected this LVA
       if (posIndex >= 0) {
         const label = document.createElement("span");
-        label.textContent = ` (Position: ${posIndex + 1})`;
-        label.style.color = "blue";
-        label.style.fontWeight = "bold";
-        label.className = "wustus-position-label"; // helps us remove old labels next time
-
-        label.textContent = `#${posIndex + 1}`; // or "Rank #2"
+        label.className = "wustus-position-label";
+        label.textContent = `#${posIndex + 1}`;
         label.style.padding = "2px 6px";
         label.style.marginLeft = "4px";
         label.style.backgroundColor = "#ffd700";
         label.style.color = "#000";
         label.style.borderRadius = "4px";
         label.style.fontSize = "0.8em";
+        label.style.fontWeight = "bold";
 
         // 6e) Insert the label after the link
         // Option 1: Append inline next to the <a>

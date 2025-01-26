@@ -218,3 +218,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const resetBtn = document.getElementById("resetStorageBtn");
+
+  resetBtn.addEventListener("click", () => {
+    chrome.storage.local.clear(() => {
+      console.log("All local storage cleared.");
+      // Optionally, refresh UI to show empty state
+    });
+  });
+});
