@@ -1,27 +1,26 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // DOM references
-  const currentCourseEl = document.getElementById("currentCourse");
+  /***** DOM ELEMENTS *****/
   const resetBtn = document.getElementById("resetStorageBtn");
+  const currentCourseEl = document.getElementById("currentCourse");
 
+  // date/time/ms inputs + save button
   const courseDateInput = document.getElementById("courseDateInput");
   const courseTimeInput = document.getElementById("courseTimeInput");
   const courseMsInput = document.getElementById("courseMsInput");
   const saveDateTimeBtn = document.getElementById("saveDateTimeBtn");
 
+  // LVA selection
   const lvaDropdown = document.getElementById("lvaDropdown");
   const addButton = document.getElementById("addButton");
   const selectedListElement = document.getElementById("selectedList");
 
+  /***** STATE *****/
   let courseName = "Unknown Course";
+  let allLvaNumbers = []; // from courses[courseName]
+  let selectedLvas = [];  // from selectedList[courseName]
+  let courseTimes = {};   // { [courseName]: { date: "YYYY-MM-DD", time: "HH:MM", ms: "123" } }
 
-  // The list of all LVA numbers for this course
-  let allLvaNumbers = [];
-  // The user's selected LVAs for this course
-  let selectedLvas = [];
-  // We'll store { [courseName]: { date: "", time: "", ms: 0 } }
-  let reloadTimes = {};
-
-  /********** 1) DETECT CURRENT COURSE **********/
+  /***** 1) DETECT CURRENT COURSE *****/
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const injectionResults = await chrome.scripting.executeScript({
@@ -36,62 +35,64 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Failed to retrieve course name:", err);
   }
+
   currentCourseEl.textContent = courseName;
 
-  /********** 2) LOAD DATA & RENDER **********/
+  /***** 2) LOAD DATA FROM STORAGE *****/
   function loadDataAndRender() {
-    chrome.storage.local.get(["courses", "selectedList", "reloadTimes"], (data) => {
-      console.log("Loaded from storage:", data);
+    chrome.storage.local.get(
+      ["courses", "selectedList", "courseTimes"],
+      (data) => {
+        console.log("Loaded from storage:", data);
 
-      const courses = data.courses || {};
-      allLvaNumbers = courses[courseName] || [];
+        // courses => { "PI Distributed Systems": [ "5471", "5650", ...], ... }
+        const courses = data.courses || {};
+        allLvaNumbers = courses[courseName] || [];
 
-      const allSelected = data.selectedList || {};
-      selectedLvas = allSelected[courseName] || [];
+        // selectedList => { "PI Distributed Systems": [ "5471", "5650" ], ... }
+        const allSelected = data.selectedList || {};
+        selectedLvas = allSelected[courseName] || [];
 
-      reloadTimes = data.reloadTimes || {};
+        // courseTimes => { "PI Distributed Systems": { date, time, ms }, ...}
+        courseTimes = data.courseTimes || {};
 
-      refreshDropdown();
-      refreshSelectedList();
-      loadCourseDateTime(); // Fill the date/time/ms inputs
-    });
+        refreshDropdown();
+        refreshSelectedList();
+        renderCourseTime();
+      }
+    );
   }
 
-  /********** 3) COURSE DATE/TIME/MS LOGIC **********/
-  function loadCourseDateTime() {
-    // If none is stored for this course, default to empty/zero
-    const entry = reloadTimes[courseName] || { date: "", time: "", ms: 0 };
-
-    // Populate the fields
-    // - date/time inputs typically want "YYYY-MM-DD" and "HH:MM"
-    // - if your user enters in a different format, you can adjust as needed
+  /***** 3) RENDER & SAVE COURSE TIME (date/time/ms) *****/
+  function renderCourseTime() {
+    const entry = courseTimes[courseName] || {};
+    // e.g. { date: "2025-02-03", time: "14:00", ms: "500" }
     courseDateInput.value = entry.date || "";
     courseTimeInput.value = entry.time || "";
-    courseMsInput.value = entry.ms || 0;
+    courseMsInput.value = entry.ms || "";
   }
 
-  // Called when user clicks "Save Date/Time/MS" button
   function saveCourseDateTime() {
-    // read the input values
-    const dateVal = courseDateInput.value; // "YYYY-MM-DD"
-    const timeVal = courseTimeInput.value; // "HH:MM"
-    const msVal = parseInt(courseMsInput.value, 10) || 0; // parse to integer
+    const dateVal = courseDateInput.value;  // "YYYY-MM-DD"
+    const timeVal = courseTimeInput.value;  // "HH:MM"
+    const msVal = courseMsInput.value;      // "123"
 
-    reloadTimes[courseName] = {
-      date: dateVal,
-      time: timeVal,
-      ms: msVal
-    };
+    // Store in memory
+    courseTimes[courseName] = { date: dateVal, time: timeVal, ms: msVal };
 
-    // store it
-    chrome.storage.local.set({ reloadTimes }, () => {
-      console.log("Saved date/time/ms for", courseName, reloadTimes[courseName]);
+    // Write to storage
+    chrome.storage.local.set({ courseTimes }, () => {
+      console.log(
+        `Saved date/time/ms for ${courseName}:`,
+        courseTimes[courseName]
+      );
     });
   }
 
-  /********** 4) REFRESH DROPDOWN & SELECTED LIST (unchanged) **********/
+  /***** 4) REFRESH DROPDOWN & SELECTED LIST *****/
   function refreshDropdown() {
     lvaDropdown.innerHTML = "";
+
     const unselected = allLvaNumbers.filter((num) => !selectedLvas.includes(num));
     if (!unselected.length) {
       const option = document.createElement("option");
@@ -115,34 +116,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectedListElement.innerHTML = "";
     selectedLvas.forEach((lva, index) => {
       const li = document.createElement("li");
-      const labelSpan = document.createElement("span");
-      labelSpan.textContent = lva + " ";
+      li.textContent = lva + " ";
 
+      // Up button
       const upButton = document.createElement("button");
       upButton.textContent = "↑";
-      upButton.style.marginRight = "4px";
       upButton.disabled = index === 0;
+      upButton.style.marginRight = "4px";
       upButton.addEventListener("click", () => moveItemUp(index));
 
+      // Down button
       const downButton = document.createElement("button");
       downButton.textContent = "↓";
-      downButton.style.marginRight = "4px";
       downButton.disabled = index === selectedLvas.length - 1;
+      downButton.style.marginRight = "4px";
       downButton.addEventListener("click", () => moveItemDown(index));
 
+      // Delete button
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "Delete";
       deleteButton.addEventListener("click", () => removeItem(index));
 
-      li.appendChild(labelSpan);
       li.appendChild(upButton);
       li.appendChild(downButton);
       li.appendChild(deleteButton);
+
       selectedListElement.appendChild(li);
     });
   }
 
-  // Move items up/down in selected list
+  /***** 5) SELECTED LIST MANIPULATION *****/
   function moveItemUp(index) {
     if (index > 0) {
       const temp = selectedLvas[index];
@@ -174,14 +177,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       allSelected[courseName] = selectedLvas;
       chrome.storage.local.set({ selectedList: allSelected }, () => {
-        console.log("Updated selectedList for course:", courseName, selectedLvas);
+        console.log(
+          "Updated selectedList for course:",
+          courseName,
+          selectedLvas
+        );
         refreshDropdown();
         refreshSelectedList();
       });
     });
   }
 
-  /********** 5) EVENT LISTENERS **********/
+  /***** 6) EVENT LISTENERS *****/
+  // Reset all storage
   resetBtn.addEventListener("click", () => {
     chrome.storage.local.clear(() => {
       console.log("All local storage cleared.");
@@ -189,10 +197,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Save date/time/ms
   saveDateTimeBtn.addEventListener("click", () => {
     saveCourseDateTime();
   });
 
+  // Add LVA from dropdown
   addButton.addEventListener("click", () => {
     const selectedValue = lvaDropdown.value;
     if (!selectedValue) return;
@@ -208,7 +218,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Listen for storage changes
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "local") {
-      if (changes.courses || changes.selectedList || changes.reloadTimes) {
+      if (changes.courses || changes.selectedList || changes.courseTimes) {
         console.log("Storage changed:", changes);
         loadDataAndRender();
       }

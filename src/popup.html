@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>My Extension Popup</title>
+    <title>WUstus Popup</title>
     <style>
       body {
-        width: 300px;   /* popup width */
-        height: 520px;  /* increased to accommodate extra UI */
+        width: 320px;
+        height: 520px;
         margin: 0;
         padding: 10px;
         font-family: sans-serif;
@@ -21,40 +21,35 @@
         margin-top: 1em;
         margin-bottom: 0.5em;
       }
-      #lvaDropdown {
-        min-width: 120px;
-        padding: 3px;
-      }
       button {
         margin-left: 6px;
         padding: 3px 6px;
         cursor: pointer;
       }
-      hr {
-        margin: 1em 0;
+      #lvaDropdown {
+        min-width: 120px;
+        padding: 3px;
       }
       #selectedList {
         list-style: disc inside;
         margin: 0;
         padding: 0;
       }
-      /* A small container for the date/time form */
-      .date-time-form {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin: 10px 0;
-      }
       .row {
         display: flex;
         gap: 5px;
-        align-items: center;
+        margin-bottom: 5px;
       }
       .row label {
         font-weight: bold;
       }
-      .row input {
-        padding: 2px 4px;
+      .time-form {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .time-form input {
+        padding: 3px;
       }
     </style>
   </head>
@@ -62,36 +57,39 @@
     <h1>WUstus Popup</h1>
     <button id="resetStorageBtn">Reset all stored data</button>
 
-    <!-- Current Course Display -->
     <p>
       Current Course:
       <strong id="currentCourse">Loading...</strong>
     </p>
 
-    <!-- A form for the user to set date/time/millis for this course -->
-    <div class="date-time-form">
+    <hr />
+
+    <!-- PART A: Date/Time/Milliseconds for scheduled refresh -->
+    <h2>Scheduled Refresh</h2>
+    <div class="time-form">
       <div class="row">
-        <label for="courseDateInput">Date:</label>
+        <label for="courseDateInput">Date</label>
         <input id="courseDateInput" type="date" />
       </div>
       <div class="row">
-        <label for="courseTimeInput">Time:</label>
+        <label for="courseTimeInput">Time</label>
         <input id="courseTimeInput" type="time" />
       </div>
       <div class="row">
-        <label for="courseMsInput">Millis:</label>
-        <input id="courseMsInput" type="number" min="0" max="999" step="1" />
+        <label for="courseMsInput">ms</label>
+        <input id="courseMsInput" type="number" />
       </div>
-      <button id="saveDateTimeBtn">Save Date/Time/MS</button>
+      <button id="saveDateTimeBtn">Save Refresh Time</button>
     </div>
 
     <hr />
 
+    <!-- PART B: LVA selection logic -->
     <p>Select an LVA number and click "Add" to add it to your personal list for this course.</p>
-    <select id="lvaDropdown"></select>
-    <button id="addButton">Add</button>
-
-    <hr />
+    <div class="row">
+      <select id="lvaDropdown"></select>
+      <button id="addButton">Add</button>
+    </div>
 
     <h2>Your Selected LVA Numbers</h2>
     <ul id="selectedList"></ul>
