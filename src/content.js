@@ -4,8 +4,8 @@
   const MAX_ATTEMPTS = 10;
 
   /**
-   *  Helper to create or find a small "status box" on the page
-   *  and append a message to it for user visibility.
+   * Helper to create/find a "status area" and append a message for user visibility.
+   * This will be inserted right above the <table class="b3k-data">.
    */
   function logToUser(msg, color = "blue") {
     const table = document.querySelector("table.b3k-data");
