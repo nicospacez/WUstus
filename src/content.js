@@ -8,42 +8,43 @@
    *  and append a message to it for user visibility.
    */
   function logToUser(msg, color = "blue") {
-    // Try to find an existing WUstus status box
-    let box = document.getElementById("wustus-status-box");
-    if (!box) {
-      // If none, create one
-      box = document.createElement("div");
-      box.id = "wustus-status-box";
-      Object.assign(box.style, {
-        position: "fixed",
-        top: "50px",
-        right: "50px",
-        backgroundColor: "#f8f8f8",
-        border: "2px solid #77f",
-        padding: "8px",
-        zIndex: 999999,
-        maxWidth: "250px",
-        fontFamily: "sans-serif",
-        fontSize: "0.9em",
-      });
-      // Title
+    const table = document.querySelector("table.b3k-data");
+    if (!table) {
+      console.log("No table found; fallback to console only:", msg);
+      return;
+    }
+
+    // Try to find an existing WUstus log container
+    let logContainer = document.getElementById("wustus-status-container");
+    if (!logContainer) {
+      // If not present, create a container <div> before the table
+      logContainer = document.createElement("div");
+      logContainer.id = "wustus-status-container";
+      // Basic styling to blend in with the page
+      logContainer.style.margin = "1em 0";
+      logContainer.style.padding = "1em";
+      logContainer.style.border = "1px solid #ccc";
+      logContainer.style.backgroundColor = "#f9f9f9";
+      logContainer.style.fontFamily = "sans-serif";
+      logContainer.style.fontSize = "0.9em";
+
+      // Title line
       const title = document.createElement("div");
       title.textContent = "WUstus Status";
-      Object.assign(title.style, {
-        fontWeight: "bold",
-        marginBottom: "6px",
-        color: "#333",
-      });
-      box.appendChild(title);
+      title.style.fontWeight = "bold";
+      title.style.marginBottom = "0.5em";
+      logContainer.appendChild(title);
 
-      document.body.appendChild(box);
+      // Insert the container right before the table
+      table.parentNode.insertBefore(logContainer, table);
     }
-    // Add the message
+
+    // Create a paragraph for the new message
     const p = document.createElement("p");
     p.textContent = msg;
-    p.style.margin = "4px 0";
+    p.style.margin = "0.4em 0";
     p.style.color = color;
-    box.appendChild(p);
+    logContainer.appendChild(p);
   }
 
   /**
@@ -74,9 +75,7 @@
             `Saved/merged ${merged.length} LVA numbers for "${courseName}":`,
             merged
           );
-          logToUser(
-            `Found ${merged.length} LVA(s) on this page: ${merged.join(", ")}`
-          );
+          logToUser(`Found ${merged.length} LVA(s) on this page: ${merged.join(", ")}`);
         });
       });
     }
@@ -185,12 +184,10 @@
       const targetObj = courseTimes[courseName];
       if (!targetObj) return;
 
-      // e.g. { date: "2025-02-03", time: "14:05:27.123" }
-      const dateVal = targetObj.date; // "YYYY-MM-DD"
-      const timeVal = targetObj.time; // "HH:MM:SS.sss"
-      if (!dateVal || !timeVal) return;
+      const { date, time } = targetObj;
+      if (!date || !time) return;
 
-      const dateTime = parseDateTimeString(dateVal, timeVal);
+      const dateTime = parseDateTimeString(date, time);
       if (!dateTime) return;
 
       const now = Date.now();
@@ -209,9 +206,7 @@
       }, diff);
 
       logToUser(
-        `Scheduled auto-reload in ${Math.round(
-          diff / 1000
-        )}s for ${courseName}.`,
+        `Scheduled auto-reload in ${Math.round(diff / 1000)}s for ${courseName}.`,
         "purple"
       );
       console.log(

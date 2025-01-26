@@ -1,56 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>WUstus Popup</title>
     <style>
+      /* Base Page Styles */
+      html,
       body {
-        width: 320px;
-        height: 500px;
-        margin: 0;
-        padding: 10px;
-        font-family: sans-serif;
-        box-sizing: border-box;
-      }
-      h1 {
-        font-size: 1.2em;
-        margin-bottom: 0.5em;
-      }
-      button {
-        margin-left: 6px;
-        padding: 3px 6px;
-      }
-      #selectedList {
-        list-style: disc inside;
         margin: 0;
         padding: 0;
+        font-family: sans-serif;
+        background-color: #fafafa;
+        color: #333;
+        box-sizing: border-box;
       }
-      .time-form {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        margin-bottom: 10px;
+
+      /* Container for the popup content */
+      body {
+        max-width: 400px; /* so it doesn't grow too wide */
+        min-width: 300px; /* so it doesn't grow too wide */
+        width: 100%;
+        /* height is auto, ensuring text won't be clipped */
+        padding: 12px;
       }
+
+      h1,
+      h2 {
+        margin-top: 0;
+        margin-bottom: 0.5em;
+        font-weight: 600;
+      }
+
+      button {
+        padding: 6px 12px;
+        background-color: #007bff; /* a nice blue */
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      /* A simple reset button style (if you want them different) */
+      #resetStorageBtn,
+      #resetAttemptsBtn {
+        background-color: #6c757d;
+      }
+      #resetStorageBtn:hover,
+      #resetAttemptsBtn:hover {
+        background-color: #5a6268;
+      }
+
+      label {
+        font-weight: 600;
+      }
+
+      /* Simple utility row for grouping label+input or button sets */
       .row {
         display: flex;
         align-items: center;
-        gap: 5px;
-        margin-bottom: 5px;
+        gap: 8px;
+        margin-bottom: 10px;
       }
-      .row label {
-        min-width: 60px;
-        font-weight: bold;
+
+      /* A narrower numeric input for max attempts */
+      #maxAttemptsInput {
+        width: 60px;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
-      .row input {
-        padding: 3px;
+
+      /* For text inputs/fields in general */
+      input[type="text"],
+      input[type="date"],
+      input[type="time"],
+      input[type="number"] {
+        flex: 1;
+        padding: 4px 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      select {
+        flex: 1;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      hr {
+        margin: 1em 0;
+        border: none;
+        border-top: 1px solid #ddd;
+      }
+
+      /* Layout group for the date/time pickers */
+      .time-form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      /* The selected list styling */
+      #selectedList {
+        list-style: disc inside;
+        margin: 1;
+        padding: 0;
+        font-size: 0.9em;
+      }
+
+      p {
+        line-height: 1.4em;
+        margin-top: 0;
+        margin-bottom: 1em;
       }
     </style>
   </head>
   <body>
     <h1>WUstus Popup</h1>
-    <button id="resetStorageBtn">Reset all stored data</button>
 
-    <!-- A simple row for setting the max attempts -->
+    <!-- Row for setting the max attempts -->
     <div class="row">
       <label for="maxAttemptsInput">Max Attempts:</label>
       <input
@@ -58,20 +134,27 @@
         type="number"
         min="1"
         value="10"
-        style="width: 60px"
       />
       <button id="saveMaxAttemptsBtn">Save</button>
     </div>
 
-    <!-- A row to reset attempts -->
-    <div class="row">
+    <!-- Row to reset attemptCount -->
+    <div class="row" style="justify-content: flex-start;">
       <button id="resetAttemptsBtn">Reset Attempt Count</button>
     </div>
-    <p>Current Course: <strong id="currentCourse">Loading...</strong></p>
+
+    <!-- Row for resetting all local storage -->
+    <div class="row" style="justify-content: flex-start;">
+      <button id="resetStorageBtn">Reset All Stored Data</button>
+    </div>
+
+    <p>
+      Current Course:
+      <strong id="currentCourse">Loading...</strong>
+    </p>
 
     <hr />
 
-    <!-- Date/Time with sub-second step -->
     <h2>Scheduled Refresh</h2>
     <div class="time-form">
       <div class="row">
@@ -80,7 +163,6 @@
       </div>
       <div class="row">
         <label for="courseTimeInput">Time</label>
-        <!-- step="0.001" => let user type HH:MM:SS.sss -->
         <input id="courseTimeInput" type="time" step="0.001" />
       </div>
       <button id="saveDateTimeBtn">Save Refresh Time</button>
