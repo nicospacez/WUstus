@@ -203,3 +203,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const maxAttemptsInput = document.getElementById("maxAttemptsInput");
+  const saveMaxAttemptsBtn = document.getElementById("saveMaxAttemptsBtn");
+  const resetAttemptsBtn = document.getElementById("resetAttemptsBtn");
+
+  // 1) Load current maxAttempts from storage
+  chrome.storage.local.get(["maxAttempts"], (data) => {
+    const currentMax = data.maxAttempts || 10;
+    maxAttemptsInput.value = currentMax;
+  });
+
+  // 2) Save the user’s new maxAttempts when “Save” is clicked
+  saveMaxAttemptsBtn.addEventListener("click", () => {
+    const newMax = parseInt(maxAttemptsInput.value, 10) || 10;
+    chrome.storage.local.set({ maxAttempts: newMax }, () => {
+      console.log("Set maxAttempts =", newMax);
+      alert(`Max attempts set to ${newMax}`);
+    });
+  });
+
+  // 3) Reset attemptCount to zero
+  resetAttemptsBtn.addEventListener("click", () => {
+    chrome.storage.local.set({ attemptCount: 0 }, () => {
+      console.log("Reset attemptCount to 0");
+      alert("Attempt count has been reset to 0.");
+    });
+  });
+});

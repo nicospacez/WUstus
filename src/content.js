@@ -240,14 +240,22 @@
   }
 
   /**
-   * checkAndAttemptRegistration: if now >= scheduledTime => try to register up to 10 times
+   * checkAndAttemptRegistration: if now >= scheduledTime => try to register
+   * up to "maxAttempts" times (user-defined). If no success => reload => etc.
    */
   function checkAndAttemptRegistration() {
     chrome.storage.local.get(
-      ["courseTimes", "registrationPriority", "attemptCount"],
+      [
+        "courseTimes",           // for checking scheduled time
+        "registrationPriority",  // user's ordered LVA list
+        "attemptCount",          // how many reloads so far
+        "maxAttempts"            // newly user-defined maximum
+      ],
       (data) => {
         let attemptCount = data.attemptCount || 0;
         const priorityList = data.registrationPriority || [];
+        // Default to 10 if user didn't set a max
+        const maxAtt = data.maxAttempts ?? 10;
 
         // Load scheduled date/time
         const courseTimes = data.courseTimes || {};
@@ -299,19 +307,14 @@
           return;
         }
 
-        // 4) If neither succeeded => increment attempts => reload
+        // 4) If still no success => increment attemptCount => reload
         attemptCount++;
-        if (attemptCount < MAX_ATTEMPTS) {
+        if (attemptCount < maxAtt) {
           chrome.storage.local.set({ attemptCount }, () => {
-            logToUser(
-              `No success. Reloading... (attempt #${attemptCount})`,
-              "orange"
-            );
-            console.log(`No success. Reloading... attemptCount=${attemptCount}`);
+            console.log(`No success. Reloading... attempt #${attemptCount}`);
             window.location.reload();
           });
         } else {
-          logToUser(`No success after ${attemptCount} attempts. Stopping.`, "red");
           console.log(`No success after ${attemptCount} attempts. Stopping.`);
         }
       }

@@ -50,6 +50,23 @@
     <h1>WUstus Popup</h1>
     <button id="resetStorageBtn">Reset all stored data</button>
 
+    <!-- A simple row for setting the max attempts -->
+    <div class="row">
+      <label for="maxAttemptsInput">Max Attempts:</label>
+      <input
+        id="maxAttemptsInput"
+        type="number"
+        min="1"
+        value="10"
+        style="width: 60px"
+      />
+      <button id="saveMaxAttemptsBtn">Save</button>
+    </div>
+
+    <!-- A row to reset attempts -->
+    <div class="row">
+      <button id="resetAttemptsBtn">Reset Attempt Count</button>
+    </div>
     <p>Current Course: <strong id="currentCourse">Loading...</strong></p>
 
     <hr />
@@ -71,7 +88,10 @@
 
     <hr />
 
-    <p>Select an LVA number and click "Add" to add it to your personal list for this course.</p>
+    <p>
+      Select an LVA number and click "Add" to add it to your personal list for
+      this course.
+    </p>
     <div class="row">
       <select id="lvaDropdown"></select>
       <button id="addButton">Add</button>
