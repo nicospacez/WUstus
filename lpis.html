@@ -1,0 +1,547 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0103)https://lpis.wu.ac.at/kdcs/bach-s37/59805/DLVO?YuYB_501120=_434200;SPP=286644;F=;A=5;SH=434200;R=315857 -->
+<html xmlns="https://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="refresh" content="600;URL=https://short.wu.ac.at/wu-lpis">
+
+<!--
+  <link rel="stylesheet" type="text/css" href="https://yui.yahooapis.com/2.8.0r4/build/container/assets/skins/sam/container.css" />
+-->
+
+  <link rel="stylesheet" type="text/css" href="./Lehrveranstaltungs- und Prüfungsinformationssystem_files/lpis_ng_03.css">
+<style type="text/css">
+ 
+  table.b3k-data {
+    /*max-width:800px;*/
+   /* max-width: 1200px; */
+   /* min-width: 800px; */
+  }
+  
+  table.b3k-data thead th {
+    font-size:1.2em;
+    font-weight:lighter;
+    padding:.5em;
+    border-bottom: 2px solid rgba(199,199,199,0.5);
+  }
+  .durchstrich {
+    text-decoration: line-through;
+    font-style: italic;
+  }  
+  
+  .outdated {
+    font-style: italic;
+  }  
+
+  td.ver_id {
+    max-width:80px;
+  }
+ 
+  #abgewaehlt {
+    color:grey;
+    font-style:italic;
+  }
+
+  input[type=submit] {
+    border:1px solid black;
+    background-color: white;
+  }  
+  input[type=submit] {
+    -webkit-appearance: none
+    !important;
+    border-radius: 0 !important;
+    color: black !important;
+  }  
+  input[type=submit]:disabled {
+    border:1px solid grey;
+    background-color: #ddd;
+  }
+  td.ver_title {
+    max-width: 350px;
+    min-width: 250px;
+    white-space:normal !important;
+  }
+  td.erg_title {
+    max-width: 450px;
+    min-width: 350px;
+    white-space:normal !important;
+  }
+  td.ver_title div {
+    font-weight: bold;
+  }
+  td.box {
+    /*height: 100%;*/
+    padding:3px 15px 3px 5px;
+    font-family: sans-serif;
+    max-width:160px;
+  }
+  td.action {
+    max-width:160px;
+  }
+  div.box {
+    padding-left:.25em;
+    padding-right:.25em;
+    white-space:normal;
+    
+  }
+  div.registration, td.registration {
+    background-color: #24587a;
+    color:#eee;
+  }
+  div.tradeoff, td.tradeoff {
+    background-color: #65a6d1;
+    color:#222;
+  }
+  div.waitlist, td.waitlist {
+    background-color: #0a67a3;
+    color:#ccc;
+  }
+  td.active, td.expired {
+    border-right:10px solid #036;
+  }
+  td.via_tradeoff {
+    border-right:10px solid #036;
+  }
+  td.inactive {
+    border-right:10px solid #999;
+  }
+  td.impossible {
+    border-right:11px solid rgba(255,0,0,0.5);
+  }
+
+  td.not_allowed {
+    border-right:10px solid #f00;
+  }
+
+  td.blocked {
+    border-right:10px solid rgba(255,0,0,.25);
+  }
+  td.possible {
+    border-right:10px solid #CDA400;
+  }
+
+  div.timestamp {
+    font-size:.85em;
+    font-style:italic;
+    /*color:#444;*/
+  }
+
+  /* KONTINGENT STYLES */
+  
+  td.capacity {
+    /*padding:.5em;*/
+    margin:0;
+    text-align:center;
+    width:90px;
+  }
+  div.free {
+    font-size:.8em;
+    font-weight:lighter;
+    padding: 0.2em .4em .2em .4em;
+    display:inline-block;
+    width:50px;
+  }
+  div.max {
+    /*padding: 0 1em 0 1em;*/
+    font-size:.8em;
+    font-weight:lighter;
+    padding: 0.2em .4em .2em .4em;
+    border-left: 1px solid #ccc;
+    display:inline-block;
+    width:50px;
+  }  
+  .capacity_title {
+    font-size:.9em;
+    font-weight:lighter;
+    text-align:right;
+    /*padding: 0.2em .4em .2em .4em;*/
+    display:inline-block;
+    width:35%;
+    height: 100%;
+  }
+  .capacity_entry {
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+    /*background-color: red;*/
+    /*padding: 0.2em .4em .2em .4em;*/
+    display:inline-block;
+    width:65%;
+    height: 100%;
+  }
+  .capacity_entry_green {
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+    background-color: rgba(0,255,0, 0.5);
+    /*padding: 0.2em .4em .2em .4em;*/
+    display:inline-block;
+    width:65%;
+    height: 100%;
+  }
+  .capacity_entry_red {
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+    background-color: rgba(255,0,0, 0.5);
+    /*padding: 0.2em .4em .2em .4em;*/
+    display:inline-block;
+    width:65%;
+    height: 100%;
+  }
+  .capacity_entry_orange {
+    font-size:.9em;
+    font-weight:bold;
+    text-align:center;
+    background-color: rgba(255,165,0, 0.5);
+    /*padding: 0.2em .4em .2em .4em;*/
+    display:inline-block;
+    width:65%;
+    height: 100%;
+  }
+  div.outofstock {
+    font-weight:bold;
+    color:red;
+    display:inline-block;
+  }
+  .msgok {
+    color:green;
+    font-weight:bold;
+  }
+
+  .msgnok {
+    color:red;
+    font-weight:bold;
+  }
+  .spacer {
+    background-color: red;
+    height: 100%;
+  }
+  /* ALERT BOXEN */
+
+.b3k_alert_warning,
+.b3k_alert_success,
+.b3k_alert_info,
+.b3k_alert_error {
+ padding: 0;
+ position: relative;
+ z-index: 1000;
+}
+
+.b3k_alert_success {
+  color:green;
+}
+
+.b3k_alert_info {
+/* color: #0099CC;*/
+  background-color: #0099CC;
+  color: white;
+}
+
+.b3k_alert_error {
+  color:red;
+}
+
+.b3k_alert_warning {
+ color: #0099CC;
+}
+
+.b3k_alert_content {
+ padding: 1px 1px 1px 5px;
+}
+
+.english {
+  background-image:url('/img/language_english.gif');
+  background-repeat:no-repeat;
+  background-color: inherit;
+  border: 0;
+}
+
+.german {
+  background-image:url('/img/language_german.gif');
+  background-repeat:no-repeat;
+  background-color: inherit;
+  border: 0;
+}
+
+</style>
+
+  
+
+  <title>Lehrveranstaltungs- und Prüfungsinformationssystem</title>
+</head>
+
+<body class="yui-skin-sam">
+
+<table>
+  <tbody><tr>
+    <td valign="bottom" height="30">
+      <span class="norm" style="font-size: large; font-weight: bold">Wirtschaftsuniversität Wien</span>
+      <span style="font-size: x-small; vertical-align: top"><sup>WU</sup></span>
+      <span class="norm">Lehrveranstaltungs- und Prüfungsinformationssystem</span>
+      <form style="display:inline" name="slang" id="slang" method="get" action="https://lpis.wu.ac.at/kdcs/bach-s37/59805/SLANG">
+        <input type="hidden" name="self" value="slang">
+        <input type="hidden" name="seed" value="728373">
+        <input type="hidden" name="R" value="798027">
+        <input type="hidden" name="redirect" value="DLVO?YuYB_501120=_434200;SPP=286644;F=;A=5;SH=434200;R=315857">
+<!--
+            tal:attributes="action data/slang/action | nothing">
+        <input type="image" tal:attributes="src data/lang/flag | nothing" alt="" />
+-->
+        <button type="submit" name="slang" class="english" title="english">&nbsp;&nbsp;&nbsp;&nbsp;</button>
+      </form>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <b>11940024 Nico Zandomeneghi</b>
+      <span style="font-size: x-small; font-weight: bold">Letztes Login: 26.01.2025 00:02 Uhr.</span>
+    </td>
+  </tr>
+
+</tbody></table>
+<hr noshade="noshade" size="1">
+
+
+
+
+
+<!-- Main Menu Section -->
+    
+      <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/EA?R=818370" title="PRF/LVP/PI-Anmeldung" class="thd">Einzelanmeldung</a>
+      <span>&nbsp;|&nbsp;</span>
+     
+      <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/GP?R=818370" title="Großprüfungsanmeldung">Prüfungswoche</a>
+      <span>&nbsp;|&nbsp;</span>
+     
+      <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/NT?R=818370" title="Notenlisten">Noten</a>
+      <span>&nbsp;|&nbsp;</span>
+     
+      <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/AL?R=818370" title="Liste der aktiven Anmeldungen">Anmeldeliste</a>
+      <span>&nbsp;|&nbsp;</span>
+     
+      <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/EX?R=818370" title="LPIS verlassen">Exit/Logout</a>
+      
+    
+    <hr noshade="noshade" size="1">
+    
+
+<!-- Sub Menu Section -->
+
+<!-- Sub Menu Einzelanmeldung -->
+
+      
+        Über die Einzelanmeldung - Studienplan können Sie sich nach Auswahl von "Studium/Abschnitt" zu den entsprechenden Lehrveranstaltungen anmelden.
+        <hr noshade="noshade" size="1">
+      
+      
+
+      
+        <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/SP?R=818370" title="LV-Anmeldung nach Auswahl von &quot;Studium/Abschnitt&quot;" class="thd">Studienplan</a>
+        <span>&nbsp;|&nbsp;</span>
+       
+        <a style="font-weight: bold" href="https://lpis.wu.ac.at/kdcs/bach-s37/59805/NR?R=818370" title="LV-Nummer im elektronischen Vorlesungsverzeichnis">Nummerneingabe</a>
+        
+      
+      <hr noshade="noshade" size="1">
+    
+    
+<!-- STUPL_Tree -->
+    
+    <form style="display:inline" name="ea_stupl" id="ea_stupl" action="https://lpis.wu.ac.at/kdcs/bach-s37/59805/DSP" method="get">
+      <b>
+        <span>Studium/Abschnitt</span>
+      </b>
+      <select name="EXxF_872073">
+      <option value="286001_434200" title="Masterstudium Digital Economy" style="font-weight:bold;">MADigiEcon-21</option>
+    </select>
+  
+
+      <input type="hidden" name="self" value="ea_stupl">
+      <input type="hidden" name="seed" value="728373">
+      <input type="hidden" name="R" value="818370">
+      <input type="submit" name="cmd" value="anzeigen">
+    </form>
+    
+    <hr noshade="noshade" size="1">
+    
+
+<!-- VERID_Reg -->
+    
+
+    
+      <span style="padding-left:20px;font-weight: bold;font-size:larger" title="PI"> PI Distributed Systems</span>
+      
+        <br>
+        <span style="padding-left:20px;font-weight: bold;font-style:italic">MADigiEcon-21 / Masterstudium Digital Economy (WS21)</span>
+        
+      
+
+    
+
+    
+
+
+
+
+
+
+    
+  
+    
+  
+
+
+<br>
+  <table style="padding-left:40px;" class="b3k-data">
+  <thead>
+    <tr>
+      <th colspan="2" class="thd">Veranstaltung</th>
+      <th class="thd">Plätze</th>
+      <th colspan="4" class="thd">
+    </th></tr>
+  </thead>
+  <tbody>
+  <tr class="td0 ">
+    <td class="ver_id">
+      
+      <a href="https://vvz.wu.ac.at/cgi-bin/vvz.pl?C=L;LV=3;U=L;L2=S;L3=S;I=5471;S=25S;LANG=DE" target="blank">5471</a><br>
+    <span title="Sommersemester 2025">SoSe 2025</span>
+    </td>
+    <td class="ver_title" style="vertical-align:top">
+      <div>Strembeck M. · Sobernig S.</div>
+      <span style="vertical-align:top">Distributed Systems Group A</span>
+        
+           &nbsp;<img width="30" height="20" src="./Lehrveranstaltungs- und Prüfungsinformationssystem_files/pm-logo.png" title="Präsenz-Modus" alt="Präsenz-Modus">
+        
+
+    </td>
+
+  <td class="capacity">
+    <div><div class="capacity_title">frei</div>
+         <div title="freie LV-Plätze / LV-Kapazität" class=" capacity_entry_green"> 45 / 45</div>
+    </div>
+    
+  </td>
+    <td class="box registration impossible">
+      <div class="box registration impossible">Anmeldung nicht möglich</div>
+      
+    </td>
+    <td class="action">
+      
+      
+        <form style="display:inline" method="post" action="https://lpis.wu.ac.at/kdcs/bach-s37/59805/SPAN" name="SPAN_515658_286644" id="SPAN_515658_286644">
+            <input type="hidden" name="self" value="SPAN_515658_286644">
+            <input type="hidden" name="R" value="818370">
+            <input type="hidden" name="seed" value="728373">
+            <input type="hidden" name="u" value="DLVO">
+            <input type="hidden" name="SPP" value="286644">
+            <input type="hidden" name="EXxF_872073" value="_434200">
+            <input type="hidden" name="PP" value="9644">
+            <input type="hidden" name="F" value="">
+            <input type="hidden" name="DISABLED" value="DISABLED">
+            
+            <input type="submit" name="cmd" value="anmelden" disabled="disabled">
+        </form>
+      
+        <div class="timestamp">
+          <span>ab 03.02.2025 14:00</span>
+        </div>
+      
+    </td>
+  </tr>
+
+   <tr class="td1 ">
+    <td class="ver_id">
+      
+      <a href="https://vvz.wu.ac.at/cgi-bin/vvz.pl?C=L;LV=3;U=L;L2=S;L3=S;I=5650;S=25S;LANG=DE" target="blank">5650</a><br>
+    <span title="Sommersemester 2025">SoSe 2025</span>
+    </td>
+    <td class="ver_title" style="vertical-align:top">
+      <div>Strembeck M. · Sobernig S.</div>
+      <span style="vertical-align:top">Distributed Systems Group B</span>
+        
+           &nbsp;<img width="30" height="20" src="./Lehrveranstaltungs- und Prüfungsinformationssystem_files/pm-logo.png" title="Präsenz-Modus" alt="Präsenz-Modus">
+        
+
+    </td>
+
+  <td class="capacity">
+    <div><div class="capacity_title">frei</div>
+         <div title="freie LV-Plätze / LV-Kapazität" class=" capacity_entry_green"> 45 / 45</div>
+    </div>
+    
+  </td>
+    <td class="box registration impossible">
+      <div class="box registration impossible">Anmeldung nicht möglich</div>
+      
+    </td>
+    <td class="action">
+      
+      
+        <form style="display:inline" method="post" action="https://lpis.wu.ac.at/kdcs/bach-s37/59805/SPAN" name="SPAN_515837_286644" id="SPAN_515837_286644">
+            <input type="hidden" name="self" value="SPAN_515837_286644">
+            <input type="hidden" name="R" value="818370">
+            <input type="hidden" name="seed" value="728373">
+            <input type="hidden" name="u" value="DLVO">
+            <input type="hidden" name="SPP" value="286644">
+            <input type="hidden" name="EXxF_872073" value="_434200">
+            <input type="hidden" name="PP" value="9644">
+            <input type="hidden" name="F" value="">
+            <input type="hidden" name="DISABLED" value="DISABLED">
+            
+            <input type="submit" name="cmd" value="anmelden" disabled="disabled">
+        </form>
+      
+        <div class="timestamp">
+          <span>ab 03.02.2025 14:00</span>
+        </div>
+      
+    </td>
+  </tr>
+
+  
+  </tbody>
+  </table>
+<br>
+<br>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script language="JavaScript" type="text/javascript">  // disable autocomplete
+  if (document.getElementsByTagName) {
+    var inputElements = document.getElementsByTagName("input");
+      for (i=0; inputElements[i]; i++) {
+        if (inputElements[i].className && (inputElements[i].className.indexOf("disableAutoComplete") != -1)) {
+          inputElements[i].setAttribute("autocomplete","off");
+        }//if current input element has the disableAutoComplete class set.
+      }//loop thru input elements
+    }//basic DOM-happiness-check 
+</script>
+
+
+
+<iframe id="qSdKT3CS" frameborder="0" src="./Lehrveranstaltungs- und Prüfungsinformationssystem_files/translateSandbox.html" style="width: 0px; height: 0px; display: none;"></iframe></body></html>

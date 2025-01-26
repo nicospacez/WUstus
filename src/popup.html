@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Extension Popup</title>
+    <style>
+      body {
+        width: 300px;   /* Set popup width */
+        height: 400px;  /* Set popup height */
+        margin: 0;
+        padding: 10px;
+        font-family: sans-serif;
+        box-sizing: border-box;
+      }
+      h1 {
+        font-size: 1.2em;
+        margin-bottom: 0.5em;
+      }
+      h2 {
+        font-size: 1.1em;
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+      }
+      #lvaDropdown {
+        min-width: 120px;
+        padding: 3px;
+      }
+      button {
+        margin-left: 6px;
+        padding: 3px 6px;
+        cursor: pointer;
+      }
+      hr {
+        margin: 1em 0;
+      }
+      #selectedList {
+        list-style: disc inside;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WUstus Popup</h1>
+
+    <!-- Course info -->
+    <p>
+      Current Course:
+      <strong id="currentCourse">Loading...</strong>
+    </p>
+
+    <p>Select an LVA number and click "Add" to add it to your personal list for this course.</p>
+
+    <!-- Dropdown and button -->
+    <select id="lvaDropdown"></select>
+    <button id="addButton">Add</button>
+
+    <hr />
+
+    <h2>Your Selected LVA Numbers</h2>
+    <ul id="selectedList"></ul>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
