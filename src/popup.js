@@ -1,24 +1,32 @@
-// popup.js
 document.addEventListener("DOMContentLoaded", async () => {
+  // DOM references
   const currentCourseEl = document.getElementById("currentCourse");
+  const resetBtn = document.getElementById("resetStorageBtn");
+
+  const courseDateInput = document.getElementById("courseDateInput");
+  const courseTimeInput = document.getElementById("courseTimeInput");
+  const courseMsInput = document.getElementById("courseMsInput");
+  const saveDateTimeBtn = document.getElementById("saveDateTimeBtn");
+
   const lvaDropdown = document.getElementById("lvaDropdown");
   const addButton = document.getElementById("addButton");
   const selectedListElement = document.getElementById("selectedList");
 
   let courseName = "Unknown Course";
-  let allLvaNumbers = []; // from courses[courseName]
-  let selectedLvas = [];  // from selectedList[courseName]
 
-  /**
-   * Detect the current course by injecting code into the active tab.
-   * (Same logic as your content script to avoid mismatch.)
-   */
+  // The list of all LVA numbers for this course
+  let allLvaNumbers = [];
+  // The user's selected LVAs for this course
+  let selectedLvas = [];
+  // We'll store { [courseName]: { date: "", time: "", ms: 0 } }
+  let reloadTimes = {};
+
+  /********** 1) DETECT CURRENT COURSE **********/
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const injectionResults = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: () => {
-        // Adjust this selector to match your page (title="PI", etc.)
         const el = document.querySelector('span[title="PI"]');
         return el?.textContent.trim() || "Unknown Course";
       },
@@ -28,15 +36,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Failed to retrieve course name:", err);
   }
-
   currentCourseEl.textContent = courseName;
 
-  /**
-   * Reads data from chrome.storage, populates allLvaNumbers & selectedLvas, then updates the UI.
-   */
+  /********** 2) LOAD DATA & RENDER **********/
   function loadDataAndRender() {
-    chrome.storage.local.get(["courses", "selectedList"], (data) => {
-      console.log("Loaded courses and selectedList from storage:", data);
+    chrome.storage.local.get(["courses", "selectedList", "reloadTimes"], (data) => {
+      console.log("Loaded from storage:", data);
 
       const courses = data.courses || {};
       allLvaNumbers = courses[courseName] || [];
@@ -44,50 +49,51 @@ document.addEventListener("DOMContentLoaded", async () => {
       const allSelected = data.selectedList || {};
       selectedLvas = allSelected[courseName] || [];
 
-      console.log("Courses object:", courses);
-      console.log("Selected List object:", allSelected);
-      console.log("Selected LVA numbers for this course:", selectedLvas);
-      console.log("All LVA numbers for this course:", allLvaNumbers);
+      reloadTimes = data.reloadTimes || {};
 
       refreshDropdown();
       refreshSelectedList();
+      loadCourseDateTime(); // Fill the date/time/ms inputs
     });
   }
 
-  /**
-   * Saves the current 'selectedLvas' array for this course back into chrome.storage.
-   * We do this whenever we reorder or delete items, so changes persist across reopens.
-   */
-  function storeSelectedList() {
-    chrome.storage.local.get(["selectedList"], (data) => {
-      let allSelected = data.selectedList;
+  /********** 3) COURSE DATE/TIME/MS LOGIC **********/
+  function loadCourseDateTime() {
+    // If none is stored for this course, default to empty/zero
+    const entry = reloadTimes[courseName] || { date: "", time: "", ms: 0 };
 
-      // If allSelected doesn't exist or is an array, convert it to an object
-      if (!allSelected || Array.isArray(allSelected)) {
-        allSelected = {};
-      }
+    // Populate the fields
+    // - date/time inputs typically want "YYYY-MM-DD" and "HH:MM"
+    // - if your user enters in a different format, you can adjust as needed
+    courseDateInput.value = entry.date || "";
+    courseTimeInput.value = entry.time || "";
+    courseMsInput.value = entry.ms || 0;
+  }
 
-      // Assign our updated array to the current course
-      allSelected[courseName] = selectedLvas;
+  // Called when user clicks "Save Date/Time/MS" button
+  function saveCourseDateTime() {
+    // read the input values
+    const dateVal = courseDateInput.value; // "YYYY-MM-DD"
+    const timeVal = courseTimeInput.value; // "HH:MM"
+    const msVal = parseInt(courseMsInput.value, 10) || 0; // parse to integer
 
-      chrome.storage.local.set({ selectedList: allSelected }, () => {
-        console.log("Updated selectedList for course:", courseName, selectedLvas);
-        // Re-render UI
-        refreshDropdown();
-        refreshSelectedList();
-      });
+    reloadTimes[courseName] = {
+      date: dateVal,
+      time: timeVal,
+      ms: msVal
+    };
+
+    // store it
+    chrome.storage.local.set({ reloadTimes }, () => {
+      console.log("Saved date/time/ms for", courseName, reloadTimes[courseName]);
     });
   }
 
-  /**
-   * Build or refresh the dropdown: only show unselected LVAs.
-   */
+  /********** 4) REFRESH DROPDOWN & SELECTED LIST (unchanged) **********/
   function refreshDropdown() {
     lvaDropdown.innerHTML = "";
-
     const unselected = allLvaNumbers.filter((num) => !selectedLvas.includes(num));
-
-    if (unselected.length === 0) {
+    if (!unselected.length) {
       const option = document.createElement("option");
       option.disabled = true;
       option.selected = true;
@@ -105,48 +111,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  /**
-   * Refresh the <ul> that shows the user's selected LVAs.
-   * We add Up/Down/Delete buttons for each item.
-   */
   function refreshSelectedList() {
     selectedListElement.innerHTML = "";
-
     selectedLvas.forEach((lva, index) => {
       const li = document.createElement("li");
-
-      // LVA number text
       const labelSpan = document.createElement("span");
       labelSpan.textContent = lva + " ";
 
-      // Up button
       const upButton = document.createElement("button");
       upButton.textContent = "↑";
       upButton.style.marginRight = "4px";
-      upButton.disabled = (index === 0); 
-      // If this item is at the top, can't move up
-      upButton.addEventListener("click", () => {
-        moveItemUp(index);
-      });
+      upButton.disabled = index === 0;
+      upButton.addEventListener("click", () => moveItemUp(index));
 
-      // Down button
       const downButton = document.createElement("button");
       downButton.textContent = "↓";
       downButton.style.marginRight = "4px";
-      downButton.disabled = (index === selectedLvas.length - 1);
-      // If this item is at the bottom, can't move down
-      downButton.addEventListener("click", () => {
-        moveItemDown(index);
-      });
+      downButton.disabled = index === selectedLvas.length - 1;
+      downButton.addEventListener("click", () => moveItemDown(index));
 
-      // Delete button
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "Delete";
-      deleteButton.addEventListener("click", () => {
-        removeItem(index);
-      });
+      deleteButton.addEventListener("click", () => removeItem(index));
 
-      // Append everything
       li.appendChild(labelSpan);
       li.appendChild(upButton);
       li.appendChild(downButton);
@@ -155,9 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  /**
-   * Move the item at `index` one position up in the 'selectedLvas' array
-   */
+  // Move items up/down in selected list
   function moveItemUp(index) {
     if (index > 0) {
       const temp = selectedLvas[index];
@@ -167,9 +152,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  /**
-   * Move the item at `index` one position down
-   */
   function moveItemDown(index) {
     if (index < selectedLvas.length - 1) {
       const temp = selectedLvas[index];
@@ -179,54 +161,57 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  /**
-   * Remove the item at `index` from 'selectedLvas'
-   */
   function removeItem(index) {
     selectedLvas.splice(index, 1);
     storeSelectedList();
   }
 
-  /**
-   * "Add" button: pick the LVA in the dropdown, append it to selectedLvas, store, and refresh
-   */
+  function storeSelectedList() {
+    chrome.storage.local.get(["selectedList"], (data) => {
+      let allSelected = data.selectedList;
+      if (!allSelected || Array.isArray(allSelected)) {
+        allSelected = {};
+      }
+      allSelected[courseName] = selectedLvas;
+      chrome.storage.local.set({ selectedList: allSelected }, () => {
+        console.log("Updated selectedList for course:", courseName, selectedLvas);
+        refreshDropdown();
+        refreshSelectedList();
+      });
+    });
+  }
+
+  /********** 5) EVENT LISTENERS **********/
+  resetBtn.addEventListener("click", () => {
+    chrome.storage.local.clear(() => {
+      console.log("All local storage cleared.");
+      loadDataAndRender();
+    });
+  });
+
+  saveDateTimeBtn.addEventListener("click", () => {
+    saveCourseDateTime();
+  });
+
   addButton.addEventListener("click", () => {
     const selectedValue = lvaDropdown.value;
     if (!selectedValue) return;
-
     if (!selectedLvas.includes(selectedValue)) {
       selectedLvas.push(selectedValue);
       storeSelectedList();
     }
   });
 
-  /**
-   * Initial load when the popup opens
-   */
+  // Initial load
   loadDataAndRender();
 
-  /**
-   * Listen for any storage changes so we can refresh automatically 
-   * (e.g., if the content script merges new LVAs after the popup is open).
-   */
+  // Listen for storage changes
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "local") {
-      if (changes.courses || changes.selectedList) {
+      if (changes.courses || changes.selectedList || changes.reloadTimes) {
         console.log("Storage changed:", changes);
         loadDataAndRender();
       }
     }
-  });
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const resetBtn = document.getElementById("resetStorageBtn");
-
-  resetBtn.addEventListener("click", () => {
-    chrome.storage.local.clear(() => {
-      console.log("All local storage cleared.");
-      // Optionally, refresh UI to show empty state
-    });
   });
 });
